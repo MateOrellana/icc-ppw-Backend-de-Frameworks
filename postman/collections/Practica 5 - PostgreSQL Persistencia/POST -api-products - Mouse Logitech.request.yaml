@@ -1,0 +1,15 @@
+$kind: http-request
+name: POST /api/products - Mouse Logitech
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Mouse Logitech",
+      "price": 25.99,
+      "stock": 40
+    }
+order: 2000

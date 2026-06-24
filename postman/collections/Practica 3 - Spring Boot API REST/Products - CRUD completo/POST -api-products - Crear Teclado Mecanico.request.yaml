@@ -1,0 +1,24 @@
+$kind: http-request
+name: POST /api/products - Crear Teclado Mecanico
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Teclado Mecanico",
+      "price": 65.75,
+      "stock": 18
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200", function () {
+          pm.response.to.have.status(200);
+      });
+      const json = pm.response.json();
+      pm.collectionVariables.set("productId3", json.id);
+    language: text/javascript
+order: 3000

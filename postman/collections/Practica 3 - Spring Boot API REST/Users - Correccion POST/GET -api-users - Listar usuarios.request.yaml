@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /api/users - Listar usuarios
+url: http://localhost:8080/api/users
+method: GET
+order: 2000

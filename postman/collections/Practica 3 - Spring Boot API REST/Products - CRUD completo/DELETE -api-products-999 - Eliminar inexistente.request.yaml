@@ -1,0 +1,5 @@
+$kind: http-request
+name: DELETE /api/products/999 - Eliminar inexistente
+url: http://localhost:8080/api/products/999
+method: DELETE
+order: 9000

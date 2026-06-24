@@ -1,0 +1,15 @@
+$kind: http-request
+name: POST /api/products - Monitor LG
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Monitor LG 24",
+      "price": 180.00,
+      "stock": 12
+    }
+order: 4000

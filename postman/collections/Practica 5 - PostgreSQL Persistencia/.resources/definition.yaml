@@ -1,0 +1,2 @@
+$kind: collection
+description: "Coleccion sin variables para crear 5 productos y probar CRUD con persistencia PostgreSQL. Autor: Mateo Orellana."

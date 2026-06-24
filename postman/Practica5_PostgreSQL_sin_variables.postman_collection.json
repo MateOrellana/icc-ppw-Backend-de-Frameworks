@@ -1,0 +1,153 @@
+{
+  "info": {
+    "_postman_id": "f3c38f7d-05-postgresql-practica5",
+    "name": "Practica 5 - PostgreSQL Persistencia",
+    "description": "Coleccion sin variables para crear 5 productos y probar CRUD con persistencia PostgreSQL. Autor: Mateo Orellana.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST /api/products - Laptop Lenovo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Laptop Lenovo\",\n  \"price\": 850.50,\n  \"stock\": 10\n}"
+        },
+        "url": "http://localhost:8080/api/products"
+      }
+    },
+    {
+      "name": "POST /api/products - Mouse Logitech",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Mouse Logitech\",\n  \"price\": 25.99,\n  \"stock\": 40\n}"
+        },
+        "url": "http://localhost:8080/api/products"
+      }
+    },
+    {
+      "name": "POST /api/products - Teclado Mecanico",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Teclado Mecanico\",\n  \"price\": 65.75,\n  \"stock\": 18\n}"
+        },
+        "url": "http://localhost:8080/api/products"
+      }
+    },
+    {
+      "name": "POST /api/products - Monitor LG",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Monitor LG 24\",\n  \"price\": 180.00,\n  \"stock\": 12\n}"
+        },
+        "url": "http://localhost:8080/api/products"
+      }
+    },
+    {
+      "name": "POST /api/products - Impresora Epson",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Impresora Epson\",\n  \"price\": 220.00,\n  \"stock\": 7\n}"
+        },
+        "url": "http://localhost:8080/api/products"
+      }
+    },
+    {
+      "name": "GET /api/products - Listar productos persistidos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "http://localhost:8080/api/products"
+      }
+    },
+    {
+      "name": "GET /api/products/1 - Buscar producto",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "http://localhost:8080/api/products/1"
+      }
+    },
+    {
+      "name": "PUT /api/products/1 - Actualizar completo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Laptop Lenovo ThinkPad\",\n  \"price\": 920.00,\n  \"stock\": 8\n}"
+        },
+        "url": "http://localhost:8080/api/products/1"
+      }
+    },
+    {
+      "name": "PATCH /api/products/2 - Actualizar stock",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stock\": 35\n}"
+        },
+        "url": "http://localhost:8080/api/products/2"
+      }
+    },
+    {
+      "name": "DELETE /api/products/5 - Eliminacion logica",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "http://localhost:8080/api/products/5"
+      }
+    }
+  ]
+}

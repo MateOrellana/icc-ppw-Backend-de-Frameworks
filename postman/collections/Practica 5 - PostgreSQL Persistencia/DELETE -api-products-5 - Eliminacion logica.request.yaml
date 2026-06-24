@@ -1,0 +1,5 @@
+$kind: http-request
+name: DELETE /api/products/5 - Eliminacion logica
+url: http://localhost:8080/api/products/5
+method: DELETE
+order: 10000

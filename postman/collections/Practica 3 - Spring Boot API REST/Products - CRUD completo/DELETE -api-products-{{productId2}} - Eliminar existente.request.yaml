@@ -1,0 +1,5 @@
+$kind: http-request
+name: DELETE /api/products/{{productId2}} - Eliminar existente
+url: http://localhost:8080/api/products/{{productId2}}
+method: DELETE
+order: 8000

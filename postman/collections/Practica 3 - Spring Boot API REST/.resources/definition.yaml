@@ -1,0 +1,8 @@
+$kind: collection
+name: Practica 3 - Spring Boot API REST
+description: "Coleccion para probar los endpoints de users y products de la practica 3. Autor: Mateo Orellana."
+variables:
+  baseUrl: http://localhost:8080
+  productId1: ""
+  productId2: ""
+  productId3: ""

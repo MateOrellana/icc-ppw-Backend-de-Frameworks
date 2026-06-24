@@ -1,0 +1,15 @@
+$kind: http-request
+name: POST /api/products - Laptop Lenovo
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Laptop Lenovo",
+      "price": 850.50,
+      "stock": 10
+    }
+order: 1000

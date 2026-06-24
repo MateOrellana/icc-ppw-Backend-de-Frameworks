@@ -1,0 +1,15 @@
+$kind: http-request
+name: PUT /api/products/1 - Actualizar completo
+url: http://localhost:8080/api/products/1
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Laptop Lenovo ThinkPad",
+      "price": 920.00,
+      "stock": 8
+    }
+order: 8000

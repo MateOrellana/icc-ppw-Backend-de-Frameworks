@@ -1,0 +1,15 @@
+$kind: http-request
+name: POST /api/products - Impresora Epson
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Impresora Epson",
+      "price": 220.00,
+      "stock": 7
+    }
+order: 5000

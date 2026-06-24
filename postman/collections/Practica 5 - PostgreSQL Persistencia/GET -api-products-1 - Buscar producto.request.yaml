@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /api/products/1 - Buscar producto
+url: http://localhost:8080/api/products/1
+method: GET
+order: 7000

@@ -1,0 +1,13 @@
+$kind: http-request
+name: PATCH /api/products/2 - Actualizar stock
+url: http://localhost:8080/api/products/2
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "stock": 35
+    }
+order: 9000

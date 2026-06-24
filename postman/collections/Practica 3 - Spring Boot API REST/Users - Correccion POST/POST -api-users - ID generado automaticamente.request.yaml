@@ -1,0 +1,28 @@
+$kind: http-request
+name: POST /api/users - ID generado automaticamente
+url: http://localhost:8080/api/users
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Mateo Orellana",
+      "email": "mateo.orellana@ups.edu.ec",
+      "password": "12345"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("La respuesta tiene ID y no expone password", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).not.to.have.property("password");
+          pm.expect(json).not.to.have.property("passwordHash");
+      });
+    language: text/javascript
+order: 1000

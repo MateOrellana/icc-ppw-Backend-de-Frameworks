@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /api/products/{{productId2}} - Producto existente
+url: http://localhost:8080/api/products/{{productId2}}
+method: GET
+order: 5000

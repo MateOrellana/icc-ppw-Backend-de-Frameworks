@@ -9,6 +9,8 @@ public class UserModel {
     private LocalDateTime createdAt;
     private String password;
     private String passwordHash;
+    private LocalDateTime updatedAt;
+    private boolean deleted;
 
     public UserModel() {
     }
@@ -67,5 +69,21 @@ public class UserModel {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

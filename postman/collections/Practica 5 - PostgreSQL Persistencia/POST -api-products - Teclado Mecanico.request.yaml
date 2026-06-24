@@ -1,0 +1,15 @@
+$kind: http-request
+name: POST /api/products - Teclado Mecanico
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Teclado Mecanico",
+      "price": 65.75,
+      "stock": 18
+    }
+order: 3000
