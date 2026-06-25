@@ -1,4 +1,4 @@
-# Fundamentos Spring Boot - Practicas 3, 4 y 5
+# Fundamentos Spring Boot - Practicas 3, 4, 5, 6 y 7
 
 ## Autor
 
@@ -6,9 +6,9 @@ Mateo Orellana
 
 ## Descripcion
 
-Proyecto desarrollado con Spring Boot para practicar la construccion de una API REST usando controladores, DTOs, modelos, mappers, servicios, repositorios JPA y persistencia con PostgreSQL.
+Proyecto desarrollado con Spring Boot para practicar la construccion de una API REST usando controladores, DTOs, modelos, mappers, servicios, repositorios JPA, persistencia con PostgreSQL, validacion de datos y control global de errores.
 
-La aplicacion conserva los endpoints iniciales de estado y estudiantes, y agrega los recursos solicitados en las guias de las practicas 3, 4 y 5.
+La aplicacion conserva los endpoints iniciales de estado y estudiantes, y agrega los recursos solicitados en las guias de las practicas 3, 4, 5, 6 y 7.
 
 ## Requisitos
 
@@ -34,7 +34,7 @@ Una vez iniciado el proyecto, el servidor se ejecuta en:
 http://localhost:8080
 ```
 
-Para la practica 5, antes de iniciar Spring Boot debe estar activo PostgreSQL y debe existir la base `devdb` con el usuario `ups` y password `ups123`.
+Para las practicas 5, 6 y 7, antes de iniciar Spring Boot debe estar activo PostgreSQL y debe existir la base `devdb` con el usuario `ups` y password `ups123`.
 
 ## Cambios realizados
 
@@ -51,6 +51,18 @@ Para la practica 5, antes de iniciar Spring Boot debe estar activo PostgreSQL y 
 * Se agrego persistencia con PostgreSQL, Spring Data JPA, entidades y repositorios.
 * Se reemplazo la lista en memoria por `UserRepository` y `ProductRepository`.
 * Se agrego `BaseEntity` con `id`, `createdAt`, `updatedAt` y `deleted`.
+* Se agrego `spring-boot-starter-validation` para validar DTOs con Jakarta Validation.
+* Se agregaron anotaciones de validacion en DTOs de usuarios y productos.
+* Se agrego `@Valid` en los controladores para validar el cuerpo de las peticiones.
+* Se agrego `GlobalExceptionHandler` para responder errores de validacion y reglas de negocio de forma clara.
+* Se movio la conversion de productos al modelo `ProductModel` con metodos `fromDto`, `fromEntity`, `toEntity`, `toResponseDto`, `update` y `partialUpdate`.
+* Se agregaron reglas para evitar actualizar productos eliminados, evitar eliminarlos dos veces y excluirlos de `findAll`.
+* Se agrego validacion para evitar emails repetidos en usuarios.
+* Se agrego una jerarquia de excepciones propias: `ApplicationException`, `NotFoundException`, `ConflictException` y `BadRequestException`.
+* Se agrego `ErrorResponse` como formato unico para errores de dominio, validacion y errores inesperados.
+* Se reemplazaron `IllegalStateException` por excepciones de dominio en usuarios y productos.
+* Se agrego validacion de nombre duplicado en productos con respuesta `409 Conflict`.
+* Se movio el handler global a `core/exceptions/handler/GlobalExceptionHandler.java`.
 
 ## Estructura implementada
 
@@ -98,9 +110,20 @@ src/main/java/ec/edu/ups/icc/fundamentos01/
 
 +-- core/
     +-- dto/
-        +-- ErrorResponseDto.java
+    |   +-- ErrorResponseDto.java
     +-- entities/
-        +-- BaseEntity.java
+    |   +-- BaseEntity.java
+    +-- exceptions/
+        +-- base/
+        |   +-- ApplicationException.java
+        +-- domain/
+        |   +-- BadRequestException.java
+        |   +-- ConflictException.java
+        |   +-- NotFoundException.java
+        +-- handler/
+        |   +-- GlobalExceptionHandler.java
+        +-- response/
+            +-- ErrorResponse.java
 ```
 
 ## Endpoints disponibles
@@ -163,9 +186,9 @@ Content-Type: application/json
 }
 ```
 
-## Validacion
+## Verificacion de compilacion
 
-Se verifico la compilacion despues de aplicar repositorios y persistencia:
+Se verifico la compilacion despues de aplicar repositorios, persistencia y validaciones:
 
 ```bash
 .\gradlew.bat compileJava
@@ -279,6 +302,162 @@ FROM products;
 
 La captura para la evidencia puede tomarse desde VS Code PostgreSQL, pgAdmin o `psql`.
 
+## Practica 6: Modelos, DTOs y validacion
+
+En la practica 6 se agrego validacion de datos antes de que las peticiones lleguen a la logica de negocio. Para esto se agrego la dependencia `spring-boot-starter-validation` y se usaron anotaciones de Jakarta Validation en los DTOs.
+
+### Validaciones agregadas
+
+En usuarios:
+
+* `CreateUserDto`: nombre obligatorio, email obligatorio y valido, password obligatoria con minimo 8 caracteres.
+* `UpdateUserDto`: nombre y email obligatorios.
+* `PartialUpdateUserDto`: nombre y email opcionales, pero se validan si se envian.
+* `UserServiceImpl`: no permite crear o actualizar un usuario con email ya registrado por otro usuario.
+
+En productos:
+
+* `CreateProductDto`: nombre obligatorio, precio obligatorio no negativo y stock obligatorio no negativo.
+* `UpdateProductDto`: requiere todos los campos con las mismas reglas.
+* `PartialUpdateProductDto`: los campos son opcionales, pero si se envian se valida que sean correctos.
+* `ProductServiceImpl`: no lista productos eliminados, no permite actualizar productos eliminados y no permite eliminarlos dos veces.
+
+### Flujo aplicado
+
+```text
+Cliente REST
+  -> ProductsController
+  -> @Valid
+  -> CreateProductDto / UpdateProductDto / PartialUpdateProductDto
+  -> ProductServiceImpl
+  -> ProductModel
+  -> ProductRepository
+  -> PostgreSQL
+  -> ProductResponseDto
+  -> Cliente REST
+```
+
+### Manejo de errores
+
+Se agrego `GlobalExceptionHandler` para centralizar respuestas de error:
+
+* Si un DTO no cumple las reglas, responde `400 Bad Request` con un objeto `errors`.
+* Si un producto ya fue eliminado y se intenta actualizar, responde `400 Bad Request`.
+* Si un recurso no existe, responde `404 Not Found`.
+
+Ejemplo de POST invalido:
+
+```json
+{
+  "name": "",
+  "price": -5,
+  "stock": -1
+}
+```
+
+Respuesta obtenida:
+
+```json
+{
+  "message": "Validation failed",
+  "errors": {
+    "stock": "El stock no puede ser negativo",
+    "name": "El nombre debe tener entre 3 y 150 caracteres",
+    "price": "El precio no puede ser negativo"
+  }
+}
+```
+
+### Pruebas realizadas
+
+Se verificaron los casos principales con la aplicacion levantada en `http://localhost:8080`:
+
+```text
+POST /api/products con name vacio, price -5 y stock -1 -> 400 Bad Request
+POST /api/products con producto valido -> producto creado
+DELETE /api/products/{id} -> eliminacion logica
+PUT /api/products/{id} sobre producto eliminado -> Product already deleted
+GET /api/products -> no incluye el producto eliminado
+```
+
+## Practica 7: Control global de errores y excepciones
+
+En la practica 7 se reorganizo el manejo de errores para que toda la API responda con un formato unico. Los servicios ya no lanzan excepciones genericas como `IllegalStateException`; ahora usan excepciones propias de dominio y el handler global las transforma en respuestas HTTP.
+
+### Estructura agregada
+
+```text
+core/exceptions/
++-- base/
+|   +-- ApplicationException.java
++-- domain/
+|   +-- BadRequestException.java
+|   +-- ConflictException.java
+|   +-- NotFoundException.java
++-- handler/
+|   +-- GlobalExceptionHandler.java
++-- response/
+    +-- ErrorResponse.java
+```
+
+### Excepciones usadas
+
+* `NotFoundException`: devuelve `404 Not Found` cuando un recurso no existe o esta eliminado logicamente.
+* `ConflictException`: devuelve `409 Conflict` cuando existe un conflicto con datos registrados, por ejemplo un producto con nombre duplicado.
+* `BadRequestException`: queda disponible para reglas de negocio que deban responder `400 Bad Request`.
+* `ApplicationException`: clase base que asocia cada excepcion propia con un `HttpStatus`.
+
+### Formato unico de error
+
+Todos los errores usan `ErrorResponse`:
+
+```json
+{
+  "timestamp": "2026-06-24T20:30:44.7597338",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Product not found",
+  "path": "/api/products/999999"
+}
+```
+
+Cuando el error viene de validacion de DTOs, se agrega `details`:
+
+```json
+{
+  "timestamp": "2026-06-24T20:30:45.7712309",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Datos de entrada invalidos",
+  "path": "/api/products",
+  "details": {
+    "name": "El nombre debe tener entre 3 y 150 caracteres",
+    "stock": "El stock no puede ser negativo",
+    "price": "El precio no puede ser negativo"
+  }
+}
+```
+
+### Cambios en productos
+
+En `ProductServiceImpl` se reemplazaron los errores genericos por excepciones de dominio:
+
+* `findOne`, `update`, `partialUpdate` y `delete` lanzan `NotFoundException("Product not found")` si el producto no existe o ya esta eliminado.
+* `create`, `update` y `partialUpdate` validan que no exista otro producto activo con el mismo nombre.
+* Si el nombre ya esta registrado, se lanza `ConflictException("Product name already registered")`.
+* `ProductRepository` ahora incluye consultas para buscar productos activos por nombre.
+
+### Pruebas realizadas
+
+Se verificaron los escenarios principales:
+
+```text
+GET /api/products/999999 -> 404 Not Found
+POST /api/products con nombre duplicado -> 409 Conflict
+POST /api/products con DTO invalido -> 400 Bad Request con details
+DELETE /api/products/{id} y luego GET /api/products/{id} -> 404 Not Found
+```
+
 ## Pruebas en Postman
 
 Se agregaron colecciones listas para importar:
@@ -286,6 +465,8 @@ Se agregaron colecciones listas para importar:
 ```text
 postman/Practica3_API_REST.postman_collection.json
 postman/Practica5_PostgreSQL_sin_variables.postman_collection.json
+postman/Practica6_Validacion_DTOs.postman_collection.json
+postman/Practica7_Control_Errores.postman_collection.json
 ```
 
 Pasos para usarla:
@@ -295,9 +476,12 @@ Pasos para usarla:
 3. Ir a `File > Import`.
 4. Seleccionar `postman/Practica3_API_REST.postman_collection.json`.
 5. Para practica 5, importar `Practica5_PostgreSQL_sin_variables.postman_collection.json`.
-6. Ejecutar primero los 5 `POST /api/products` para crear productos en PostgreSQL.
-7. Ejecutar `GET /api/products - Listar productos persistidos`.
-8. Para las evidencias de practica 3, tomar capturas de estas peticiones:
+6. Para practica 6, importar `Practica6_Validacion_DTOs.postman_collection.json`.
+7. Para practica 7, importar `Practica7_Control_Errores.postman_collection.json`.
+8. Ejecutar primero los 5 `POST /api/products` para crear productos en PostgreSQL.
+9. Ejecutar `GET /api/products - Listar productos persistidos`.
+10. En las colecciones de practicas 6 y 7, ejecutar las peticiones en orden para guardar automaticamente los IDs usados en las pruebas.
+11. Para las evidencias de practica 3, tomar capturas de estas peticiones:
 
 ```text
 GET /api/products - Listar 3 productos
@@ -315,6 +499,22 @@ products-get-one.png
 products-delete-existing.png
 products-delete-missing.png
 users-post-id.png
+```
+
+Para las evidencias de practica 6, guardar capturas con estos nombres dentro de `img/`:
+
+```text
+products-invalid-post.png
+products-update-deleted-error.png
+products-findall-without-deleted.png
+```
+
+Para las evidencias de practica 7, guardar capturas con estos nombres dentro de `img/`:
+
+```text
+products-error-not-found.png
+products-error-duplicate.png
+products-error-validation-details.png
 ```
 
 ## Evidencias practica 3
@@ -367,3 +567,43 @@ FROM products;
 Resultado con 5 productos persistidos en PostgreSQL:
 
 ![5 productos en PostgreSQL](img/products-postgresql-five.png)
+
+## Evidencias practica 6
+
+### Evidencia 9: POST `/api/products` con datos invalidos
+
+Se valida que la API responda `400 Bad Request` cuando el nombre esta vacio, el precio es negativo y el stock es negativo.
+
+![POST invalido productos](img/products-invalid-post.png)
+
+### Evidencia 10: PUT `/api/products/{id}` sobre producto eliminado
+
+Se valida que la API no permita actualizar un producto marcado con eliminacion logica y responda el mensaje `Product already deleted`.
+
+![Error actualizando producto eliminado](img/products-update-deleted-error.png)
+
+### Evidencia 11: GET `/api/products` sin productos eliminados
+
+Se valida que `findAll` excluya los productos que tienen `deleted = true`.
+
+![Lista sin productos eliminados](img/products-findall-without-deleted.png)
+
+## Evidencias practica 7
+
+### Evidencia 12: GET `/api/products/999999` con producto inexistente
+
+Se evidencia que la API responde `404 Not Found` usando el formato unico `ErrorResponse`.
+
+![Error producto inexistente](img/products-error-not-found.png)
+
+### Evidencia 13: POST `/api/products` con nombre duplicado
+
+Se evidencia que la API responde `409 Conflict` cuando se intenta crear un producto activo con un nombre ya registrado.
+
+![Error producto duplicado](img/products-error-duplicate.png)
+
+### Evidencia 14: POST `/api/products` con DTO invalido
+
+Se evidencia que la API responde `400 Bad Request` y devuelve el campo `details` con los errores por campo.
+
+![Error validacion con details](img/products-error-validation-details.png)

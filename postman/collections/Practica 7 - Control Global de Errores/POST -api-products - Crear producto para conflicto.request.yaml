@@ -1,0 +1,28 @@
+$kind: http-request
+name: POST /api/products - Crear producto para conflicto
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "{{practice7ProductName}}",
+      "price": 12.50,
+      "stock": 3
+    }
+scripts:
+  - type: beforeRequest
+    code: pm.collectionVariables.set("practice7ProductName", `Producto Control Error 07 ${Date.now()}`);
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      pm.test("Debe crear el producto", function () {
+        pm.response.to.have.status(200);
+      });
+
+      const body = pm.response.json();
+      pm.collectionVariables.set("practice7ProductId", body.id);
+    language: text/javascript
+order: 2000

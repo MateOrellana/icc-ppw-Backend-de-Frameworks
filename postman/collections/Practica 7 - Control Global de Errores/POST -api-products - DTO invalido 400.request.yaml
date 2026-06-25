@@ -1,0 +1,31 @@
+$kind: http-request
+name: POST /api/products - DTO invalido 400
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "",
+      "price": -5,
+      "stock": -1
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Debe responder 400", function () {
+        pm.response.to.have.status(400);
+      });
+
+      pm.test("Debe incluir details", function () {
+        const body = pm.response.json();
+        pm.expect(body.status).to.eql(400);
+        pm.expect(body.error).to.eql("Bad Request");
+        pm.expect(body.details).to.have.property("name");
+        pm.expect(body.details).to.have.property("price");
+        pm.expect(body.details).to.have.property("stock");
+      });
+    language: text/javascript
+order: 4000

@@ -1,0 +1,29 @@
+$kind: http-request
+name: POST /api/products - Producto duplicado 409
+url: http://localhost:8080/api/products
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "{{practice7ProductName}}",
+      "price": 12.50,
+      "stock": 3
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Debe responder 409", function () {
+        pm.response.to.have.status(409);
+      });
+
+      pm.test("Debe indicar nombre duplicado", function () {
+        const body = pm.response.json();
+        pm.expect(body.status).to.eql(409);
+        pm.expect(body.error).to.eql("Conflict");
+        pm.expect(body.message).to.eql("Product name already registered");
+      });
+    language: text/javascript
+order: 3000

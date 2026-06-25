@@ -1,0 +1,286 @@
+{
+  "info": {
+    "_postman_id": "d1f80d13-0f0d-4eb0-94a2-practica7errores",
+    "name": "Practica 7 - Control Global de Errores",
+    "description": "Coleccion para probar ErrorResponse, NotFoundException, ConflictException y validacion DTO. Autor: Mateo Orellana.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "practice7ProductName",
+      "value": "Producto Control Error 07",
+      "type": "string"
+    },
+    {
+      "key": "practice7ProductId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "GET /api/products/999999 - Producto inexistente 404",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/products/999999",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "products",
+            "999999"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404\", function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Debe usar ErrorResponse\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.status).to.eql(404);",
+              "  pm.expect(body.error).to.eql(\"Not Found\");",
+              "  pm.expect(body.message).to.eql(\"Product not found\");",
+              "  pm.expect(body.path).to.eql(\"/api/products/999999\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/products - Crear producto para conflicto",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set(\"practice7ProductName\", `Producto Control Error 07 ${Date.now()}`);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe crear el producto\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set(\"practice7ProductId\", body.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{practice7ProductName}}\",\n  \"price\": 12.50,\n  \"stock\": 3\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/products",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "products"
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /api/products - Producto duplicado 409",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{practice7ProductName}}\",\n  \"price\": 12.50,\n  \"stock\": 3\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/products",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "products"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 409\", function () {",
+              "  pm.response.to.have.status(409);",
+              "});",
+              "",
+              "pm.test(\"Debe indicar nombre duplicado\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.status).to.eql(409);",
+              "  pm.expect(body.error).to.eql(\"Conflict\");",
+              "  pm.expect(body.message).to.eql(\"Product name already registered\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/products - DTO invalido 400",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"price\": -5,\n  \"stock\": -1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/products",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "products"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 400\", function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Debe incluir details\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.status).to.eql(400);",
+              "  pm.expect(body.error).to.eql(\"Bad Request\");",
+              "  pm.expect(body.details).to.have.property(\"name\");",
+              "  pm.expect(body.details).to.have.property(\"price\");",
+              "  pm.expect(body.details).to.have.property(\"stock\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE /api/products/{{practice7ProductId}} - Eliminacion logica",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/products/{{practice7ProductId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "products",
+            "{{practice7ProductId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe eliminar logicamente\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/products/{{practice7ProductId}} - Eliminado responde 404",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/products/{{practice7ProductId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "products",
+            "{{practice7ProductId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Debe responder 404\", function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Debe ocultar el eliminado logico\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.status).to.eql(404);",
+              "  pm.expect(body.message).to.eql(\"Product not found\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}

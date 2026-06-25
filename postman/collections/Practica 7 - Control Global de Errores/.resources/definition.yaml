@@ -1,0 +1,5 @@
+$kind: collection
+description: "Coleccion para probar ErrorResponse, NotFoundException, ConflictException y validacion DTO. Autor: Mateo Orellana."
+variables:
+  practice7ProductName: Producto Control Error 07
+  practice7ProductId: "1"

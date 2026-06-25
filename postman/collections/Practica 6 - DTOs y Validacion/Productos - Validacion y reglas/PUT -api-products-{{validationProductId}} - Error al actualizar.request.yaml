@@ -1,0 +1,26 @@
+$kind: http-request
+name: PUT /api/products/{{validationProductId}} - Error al actualizar eliminado
+url: http://localhost:8080/api/products/{{validationProductId}}
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Monitor Samsung actualizado",
+      "price": 250.00,
+      "stock": 5
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Debe responder 400", function () {
+        pm.response.to.have.status(400);
+      });
+
+      pm.test("Debe indicar que el producto ya fue eliminado", function () {
+        pm.expect(pm.response.text()).to.include("Product already deleted");
+      });
+    language: text/javascript
+order: 4000

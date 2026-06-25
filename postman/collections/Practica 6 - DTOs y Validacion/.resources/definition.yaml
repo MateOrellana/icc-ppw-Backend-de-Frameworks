@@ -1,0 +1,4 @@
+$kind: collection
+description: "Coleccion para validar DTOs, reglas de negocio y eliminacion logica de productos. Autor: Mateo Orellana."
+variables:
+  validationProductId: "1"

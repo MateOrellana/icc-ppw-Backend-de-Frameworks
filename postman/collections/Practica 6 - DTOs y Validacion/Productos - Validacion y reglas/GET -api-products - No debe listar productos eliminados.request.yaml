@@ -1,0 +1,18 @@
+$kind: http-request
+name: GET /api/products - No debe listar productos eliminados
+url: http://localhost:8080/api/products
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Debe responder 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("No incluye el producto eliminado", function () {
+        const products = pm.response.json();
+        const deletedId = Number(pm.collectionVariables.get("validationProductId"));
+        pm.expect(products.some(product => product.id === deletedId)).to.eql(false);
+      });
+    language: text/javascript
+order: 5000
